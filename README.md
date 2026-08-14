@@ -42,7 +42,7 @@ R2_BUCKET=다른-버킷 npm run r2:upload
 
 현재 음원 85개는 약 4.66GB이므로 업로드에 시간이 걸립니다. 업로드 도중 실패하면 해당 파일부터 다시 실행하거나, 대량 전송과 재시도가 필요한 경우 Cloudflare가 권장하는 `rclone`을 사용하세요.
 
-배포 구성은 `the-bom.com`을 Worker Custom Domain으로 연결합니다. 같은 호스트명에 기존 CNAME이 있으면 Cloudflare에서 충돌을 먼저 해소해야 합니다.
+배포 구성은 `the-bom.com`과 `www.the-bom.com`을 Worker Custom Domain으로 연결하며, `www` 요청은 경로와 쿼리를 유지한 채 apex 도메인으로 리디렉션합니다. 같은 호스트명에 기존 CNAME이 있으면 Cloudflare에서 충돌을 먼저 해소해야 합니다.
 
 ## 주요 명령
 

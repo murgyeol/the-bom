@@ -16,6 +16,16 @@ const securityHeaders = {
   "X-Frame-Options": "DENY"
 };
 
+export function canonicalUrl(requestUrl: string) {
+  const url = new URL(requestUrl);
+  if (url.hostname !== "www.the-bom.com") return null;
+
+  url.hostname = "the-bom.com";
+  url.protocol = "https:";
+  url.port = "";
+  return url.toString();
+}
+
 function json(data: unknown, init: ResponseInit = {}) {
   const headers = new Headers(init.headers);
   headers.set("Content-Type", "application/json; charset=utf-8");
@@ -91,6 +101,11 @@ async function streamTrack(request: Request, env: Env, id: string) {
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+    const canonicalLocation = canonicalUrl(request.url);
+
+    if (canonicalLocation) {
+      return Response.redirect(canonicalLocation, 308);
+    }
 
     if (url.pathname === "/api/health") {
       return json({ ok: true, tracks: tracks.length });

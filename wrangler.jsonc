@@ -8,13 +8,17 @@
     {
       "pattern": "the-bom.com",
       "custom_domain": true
+    },
+    {
+      "pattern": "www.the-bom.com",
+      "custom_domain": true
     }
   ],
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
-    "run_worker_first": ["/api/*", "/media/*"]
+    "run_worker_first": true
   },
   "r2_buckets": [
     {
@@ -26,4 +30,3 @@
     "enabled": true
   }
 }
-

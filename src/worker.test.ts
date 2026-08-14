@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { findTrack, publicTrack } from "./worker";
+import { canonicalUrl, findTrack, publicTrack } from "./worker";
 
 describe("track API helpers", () => {
   it("finds a generated track by its stable id", () => {
@@ -16,3 +16,14 @@ describe("track API helpers", () => {
   });
 });
 
+describe("canonical domain", () => {
+  it("redirects www URLs to the apex while preserving path and query", () => {
+    expect(canonicalUrl("http://www.the-bom.com/media/001?download=0")).toBe(
+      "https://the-bom.com/media/001?download=0"
+    );
+  });
+
+  it("leaves the apex domain unchanged", () => {
+    expect(canonicalUrl("https://the-bom.com/")).toBeNull();
+  });
+});
