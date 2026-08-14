@@ -24,6 +24,10 @@ function formatTime(seconds: number) {
   return `${minutes}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
 }
 
+function getPlaybackErrorName(error: unknown) {
+  return error instanceof DOMException ? error.name : null;
+}
+
 function useAudioPlayer(tracks: PublicTrack[]) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -52,9 +56,12 @@ function useAudioPlayer(tracks: PublicTrack[]) {
         })
         .catch((playError: unknown) => {
           if (!isActive) return;
+          const errorName = getPlaybackErrorName(playError);
+          if (errorName === "AbortError") return;
+
           setIsPlaying(false);
 
-          if (!(playError instanceof DOMException && playError.name === "NotAllowedError")) {
+          if (errorName !== "NotAllowedError") {
             setError("음원을 불러오지 못했습니다. R2 업로드 상태를 확인해 주세요.");
           }
         });
@@ -91,9 +98,14 @@ function useAudioPlayer(tracks: PublicTrack[]) {
     try {
       await audio.play();
       setIsPlaying(true);
-    } catch {
+    } catch (playError: unknown) {
+      const errorName = getPlaybackErrorName(playError);
+      if (errorName === "AbortError") return;
+
       setIsPlaying(false);
-      setError("음원을 불러오지 못했습니다. R2 업로드 상태를 확인해 주세요.");
+      if (errorName !== "NotAllowedError") {
+        setError("음원을 불러오지 못했습니다. R2 업로드 상태를 확인해 주세요.");
+      }
     }
   };
 

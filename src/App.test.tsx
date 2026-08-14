@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CopyrightPage, HomePage, formatTime } from "./App";
 
@@ -40,6 +40,21 @@ describe("music pages", () => {
 
     await waitFor(() => expect(audio?.getAttribute("src")).toBe(initialSource));
     expect(playSpy).toHaveBeenCalledTimes(4);
+  });
+
+  it("does not report an R2 error when switching tracks interrupts playback", async () => {
+    const playSpy = vi.spyOn(HTMLMediaElement.prototype, "play")
+      .mockResolvedValueOnce()
+      .mockRejectedValueOnce(new DOMException("Playback was interrupted", "AbortError"));
+    vi.spyOn(HTMLMediaElement.prototype, "load").mockImplementation(() => undefined);
+    render(<HomePage />);
+
+    await waitFor(() => expect(playSpy).toHaveBeenCalledTimes(1));
+    fireEvent.click(screen.getAllByRole("button", { name: "나의 이름은 봄 (1) 재생" })[0]);
+    await waitFor(() => expect(playSpy).toHaveBeenCalledTimes(2));
+    await act(async () => Promise.resolve());
+
+    expect(screen.queryByText("음원을 불러오지 못했습니다. R2 업로드 상태를 확인해 주세요.")).not.toBeInTheDocument();
   });
 
   it("renders the copyright notice", () => {
