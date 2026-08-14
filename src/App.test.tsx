@@ -22,7 +22,10 @@ describe("music pages", () => {
 
     expect(audio).not.toBeNull();
     expect(audio).toHaveAttribute("autoplay");
-    expect(screen.getByRole("heading", { name: "그대를 바라 봄" })).toBeInTheDocument();
+    const title = screen.getByRole("heading", { name: "그대를 바라 봄" });
+    expect(title).toBeInTheDocument();
+    expect(title.previousElementSibling).toHaveTextContent("우리들의 사랑이 봄처럼 머무는 곳");
+    expect(title.nextElementSibling).toBeNull();
     expect(screen.getByRole("heading", { name: "봄의 노래들" })).toBeInTheDocument();
     expect(screen.getAllByRole("button", { name: /재생$/ }).length).toBeGreaterThan(1);
 

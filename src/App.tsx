@@ -160,9 +160,8 @@ function HomePage() {
       />
       <main className="home" id="main-content">
         <header className="hero-copy">
-          <p className="eyebrow">A private spring collection</p>
+          <p className="eyebrow">우리들의 사랑이 봄처럼 머무는 곳</p>
           <h1>그대를 바라 봄</h1>
-          <p className="subtitle">우리들의 사랑이 봄처럼 머무는 곳</p>
         </header>
 
         <section className="turntable" aria-label="현재 재생 중인 곡">
