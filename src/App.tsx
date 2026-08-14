@@ -32,6 +32,49 @@ function useAudioPlayer(tracks: PublicTrack[]) {
   const currentTrack = tracks[currentIndex];
 
   useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !tracks.length) return;
+
+    let isActive = true;
+    const fallbackEvents = ["pointerdown", "keydown"] as const;
+
+    const removeFallbackListeners = () => {
+      fallbackEvents.forEach((eventName) => document.removeEventListener(eventName, resumeAfterInteraction));
+    };
+
+    const startPlayback = () => {
+      void audio.play()
+        .then(() => {
+          if (!isActive) return;
+          setIsPlaying(true);
+          setError(null);
+          removeFallbackListeners();
+        })
+        .catch((playError: unknown) => {
+          if (!isActive) return;
+          setIsPlaying(false);
+
+          if (!(playError instanceof DOMException && playError.name === "NotAllowedError")) {
+            setError("음원을 불러오지 못했습니다. R2 업로드 상태를 확인해 주세요.");
+          }
+        });
+    };
+
+    const resumeAfterInteraction = () => {
+      if (audio.paused) startPlayback();
+      else removeFallbackListeners();
+    };
+
+    fallbackEvents.forEach((eventName) => document.addEventListener(eventName, resumeAfterInteraction));
+    startPlayback();
+
+    return () => {
+      isActive = false;
+      removeFallbackListeners();
+    };
+  }, [tracks.length]);
+
+  useEffect(() => {
     setError(null);
   }, [currentTrack]);
 
@@ -96,7 +139,8 @@ function HomePage() {
       <audio
         ref={player.audioRef}
         src={player.currentTrack?.streamUrl}
-        preload="metadata"
+        autoPlay
+        preload="auto"
         onPlay={() => player.setIsPlaying(true)}
         onPause={() => player.setIsPlaying(false)}
         onEnded={() => player.move(1)}

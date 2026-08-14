@@ -1,6 +1,10 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { CopyrightPage, HomePage, formatTime } from "./App";
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 describe("formatTime", () => {
   it("formats seconds as minutes and seconds", () => {
@@ -10,11 +14,32 @@ describe("formatTime", () => {
 });
 
 describe("music pages", () => {
-  it("renders the player and local collection", () => {
-    render(<HomePage />);
+  it("starts the playlist automatically and advances when a track ends", async () => {
+    const playSpy = vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue();
+    vi.spyOn(HTMLMediaElement.prototype, "load").mockImplementation(() => undefined);
+    const { container } = render(<HomePage />);
+    const audio = container.querySelector("audio");
+
+    expect(audio).not.toBeNull();
+    expect(audio).toHaveAttribute("autoplay");
     expect(screen.getByRole("heading", { name: "그대를 바라 봄" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "봄의 노래들" })).toBeInTheDocument();
     expect(screen.getAllByRole("button", { name: /재생$/ }).length).toBeGreaterThan(1);
+
+    await waitFor(() => expect(playSpy).toHaveBeenCalled());
+    const initialSource = audio?.getAttribute("src");
+    fireEvent.ended(audio as HTMLAudioElement);
+
+    await waitFor(() => expect(audio?.getAttribute("src")).not.toBe(initialSource));
+    const secondSource = audio?.getAttribute("src");
+    const trackButtons = screen.getAllByRole("button", { name: /재생$/ });
+    fireEvent.click(trackButtons.at(-1) as HTMLButtonElement);
+
+    await waitFor(() => expect(audio?.getAttribute("src")).not.toBe(secondSource));
+    fireEvent.ended(audio as HTMLAudioElement);
+
+    await waitFor(() => expect(audio?.getAttribute("src")).toBe(initialSource));
+    expect(playSpy).toHaveBeenCalledTimes(4);
   });
 
   it("renders the copyright notice", () => {
@@ -24,4 +49,3 @@ describe("music pages", () => {
     expect(screen.getByText("English Notice")).toBeInTheDocument();
   });
 });
-
