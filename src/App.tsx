@@ -7,12 +7,9 @@ import {
   Play,
   Search,
   SkipBack,
-  SkipForward,
-  Volume2,
-  VolumeX
+  SkipForward
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { CSSProperties } from "react";
 import trackData from "./data/tracks.json";
 import type { PublicTrack, Track } from "./types";
 
@@ -31,15 +28,10 @@ function useAudioPlayer(tracks: PublicTrack[]) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(tracks[0]?.duration ?? 0);
-  const [volume, setVolume] = useState(0.85);
   const [error, setError] = useState<string | null>(null);
   const currentTrack = tracks[currentIndex];
 
   useEffect(() => {
-    setDuration(currentTrack?.duration ?? 0);
-    setCurrentTime(0);
     setError(null);
   }, [currentTrack]);
 
@@ -79,18 +71,12 @@ function useAudioPlayer(tracks: PublicTrack[]) {
     audioRef,
     currentIndex,
     currentTrack,
-    currentTime,
-    duration,
     error,
     isPlaying,
-    volume,
     move,
     playAt,
-    setCurrentTime,
-    setDuration,
     setError,
     setIsPlaying,
-    setVolume,
     toggle
   };
 }
@@ -104,20 +90,18 @@ function HomePage() {
     return localTracks.filter((track) => track.title.toLocaleLowerCase("ko").includes(normalized));
   }, [query]);
 
-  const seek = (value: number) => {
-    if (!player.audioRef.current) return;
-    player.audioRef.current.currentTime = value;
-    player.setCurrentTime(value);
-  };
-
-  const changeVolume = (value: number) => {
-    if (player.audioRef.current) player.audioRef.current.volume = value;
-    player.setVolume(value);
-  };
-
   return (
     <div className="site-shell">
       <a className="skip-link" href="#track-list">곡 목록으로 건너뛰기</a>
+      <audio
+        ref={player.audioRef}
+        src={player.currentTrack?.streamUrl}
+        preload="metadata"
+        onPlay={() => player.setIsPlaying(true)}
+        onPause={() => player.setIsPlaying(false)}
+        onEnded={() => player.move(1)}
+        onError={() => player.setError("음원을 재생할 수 없습니다. R2에 파일이 업로드되었는지 확인해 주세요.")}
+      />
       <main className="home" id="main-content">
         <header className="hero-copy">
           <p className="eyebrow">A private spring collection</p>
@@ -202,54 +186,6 @@ function HomePage() {
         <a href="/copyright">저작권 및 음원 사용 안내</a>
         <small>© 2026 정성원. All rights reserved.</small>
       </footer>
-
-      <aside className={`player-dock ${player.currentTrack ? "is-visible" : ""}`} aria-label="오디오 플레이어">
-        <audio
-          ref={player.audioRef}
-          src={player.currentTrack?.streamUrl}
-          preload="metadata"
-          onTimeUpdate={(event) => player.setCurrentTime(event.currentTarget.currentTime)}
-          onLoadedMetadata={(event) => player.setDuration(event.currentTarget.duration)}
-          onPlay={() => player.setIsPlaying(true)}
-          onPause={() => player.setIsPlaying(false)}
-          onEnded={() => player.move(1)}
-          onError={() => player.setError("음원을 재생할 수 없습니다. R2에 파일이 업로드되었는지 확인해 주세요.")}
-        />
-        <div className="dock-track">
-          <span className="dock-art" aria-hidden="true"><i /></span>
-          <span>
-            <strong>{player.currentTrack?.title}</strong>
-            <small>{player.currentTrack?.artist}</small>
-          </span>
-        </div>
-        <div className="dock-controls">
-          <button type="button" onClick={() => player.move(-1)} aria-label="이전 곡"><SkipBack /></button>
-          <button className="dock-play" type="button" onClick={() => void player.toggle()} aria-label={player.isPlaying ? "일시 정지" : "재생"}>
-            {player.isPlaying ? <Pause /> : <Play />}
-          </button>
-          <button type="button" onClick={() => player.move(1)} aria-label="다음 곡"><SkipForward /></button>
-        </div>
-        <div className="dock-progress">
-          <span>{formatTime(player.currentTime)}</span>
-          <input
-            aria-label="재생 위치"
-            type="range"
-            min="0"
-            max={player.duration || 0}
-            step="0.1"
-            value={Math.min(player.currentTime, player.duration || 0)}
-            onChange={(event) => seek(Number(event.target.value))}
-            style={{ "--progress": `${player.duration ? (player.currentTime / player.duration) * 100 : 0}%` } as CSSProperties}
-          />
-          <span>{formatTime(player.duration)}</span>
-        </div>
-        <div className="volume-control">
-          <button type="button" onClick={() => changeVolume(player.volume > 0 ? 0 : 0.85)} aria-label={player.volume > 0 ? "음소거" : "음소거 해제"}>
-            {player.volume > 0 ? <Volume2 /> : <VolumeX />}
-          </button>
-          <input aria-label="음량" type="range" min="0" max="1" step="0.05" value={player.volume} onChange={(event) => changeVolume(Number(event.target.value))} />
-        </div>
-      </aside>
     </div>
   );
 }
