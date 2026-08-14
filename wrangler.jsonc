@@ -1,0 +1,29 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "the-bom",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-08-14",
+  "workers_dev": true,
+  "routes": [
+    {
+      "pattern": "the-bom.com",
+      "custom_domain": true
+    }
+  ],
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*", "/media/*"]
+  },
+  "r2_buckets": [
+    {
+      "binding": "MUSIC",
+      "bucket_name": "the-bom-music"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}
+
