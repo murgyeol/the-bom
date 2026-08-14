@@ -276,7 +276,7 @@ function CopyrightPage() {
 
           <section lang="en">
             <h2>English Notice</h2>
-            <p>All music, including audio tracks, melodies, arrangements, and lyrics streamed on this website, is the exclusive property of <strong>Jeong Seong-won</strong> and is protected by copyright laws.</p>
+            <p>All music, including audio tracks, melodies, arrangements, and lyrics streamed on this website, is the exclusive property of <strong>Cheong Seong-won</strong> and is protected by copyright laws.</p>
             <ul>
               <li><strong>Unauthorized distribution:</strong> Downloading, re-uploading, or sharing audio files on other platforms.</li>
               <li><strong>Derivative works:</strong> Unauthorized use of lyrics, sampling, remixing, or rearranging.</li>

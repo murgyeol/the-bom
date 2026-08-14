@@ -67,5 +67,7 @@ describe("music pages", () => {
     expect(screen.getByRole("heading", { name: "저작권 및 음원 사용 안내" })).toBeInTheDocument();
     expect(screen.getByText("Korean Notice")).toBeInTheDocument();
     expect(screen.getByText("English Notice")).toBeInTheDocument();
+    expect(screen.getByText("Cheong Seong-won")).toBeInTheDocument();
+    expect(screen.queryByText("Jeong Seong-won")).not.toBeInTheDocument();
   });
 });
