@@ -28,6 +28,7 @@ describe("music pages", () => {
     expect(title.nextElementSibling).toBeNull();
     expect(screen.getByRole("heading", { name: "봄의 노래들" })).toBeInTheDocument();
     expect(screen.getAllByRole("button", { name: /재생$/ }).length).toBeGreaterThan(1);
+    expect(container.querySelector(".track-copy small")).not.toBeInTheDocument();
 
     await waitFor(() => expect(playSpy).toHaveBeenCalled());
     const initialSource = audio?.getAttribute("src");
