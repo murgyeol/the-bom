@@ -222,6 +222,7 @@ function HomePage() {
                     </span>
                     <span className="track-copy">
                       <strong>{track.title}</strong>
+                      <small>{`Arch.${track.format}`}</small>
                     </span>
                     <span className="track-duration">{formatTime(track.duration)}</span>
                     <span className="row-play" aria-hidden="true">{isActive && player.isPlaying ? <Pause /> : <Play />}</span>
